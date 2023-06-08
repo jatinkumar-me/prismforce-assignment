@@ -1,0 +1,17 @@
+{
+  "name": "pf-assignment",
+  "version": "1.0.0",
+  "description": "Program to get balance sheet",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "Jatin Kumar",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.2.5",
+    "typescript": "^5.1.3"
+  }
+}
