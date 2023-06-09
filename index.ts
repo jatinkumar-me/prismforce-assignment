@@ -2,12 +2,6 @@ import * as readline from 'node:readline/promises';
 import * as fs from 'fs';
 import { stdin as input, stdout as output } from 'node:process';
 
-const rl = readline.createInterface({ input, output });
-const fileName: string = await rl.question('Enter the name of your input file: ');
-rl.close();
-
-
-
 interface Transaction {
     amount: number;
     startDate: string;
@@ -26,6 +20,37 @@ interface InputData {
 interface OutputData {
     balance: BalanceSheetEntry[];
 }
+
+const rl = readline.createInterface({ input, output });
+const fileName: string = await rl.question('Enter the name of your input file: ');
+rl.close();
+
+fs.readFile(fileName, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading input file:', err);
+        return;
+    }
+
+    try {
+        const inputData: InputData = JSON.parse(data);
+        const expenseData: Transaction[] = inputData.expenseData || [];
+        const revenueData: Transaction[] = inputData.revenueData || [];
+        const balanceSheet: BalanceSheetEntry[] = calculateBalanceSheet(expenseData, revenueData);
+        const outputData: OutputData = { balance: balanceSheet };
+
+        // Write the output JSON to a file
+        fs.writeFile('output.json', JSON.stringify(outputData, null, 2), (err) => {
+            if (err) {
+                console.error('Error writing output file:', err);
+            } else {
+                console.log('Balance sheet has been generated successfully!');
+                console.log(balanceSheet);
+            }
+        });
+    } catch (err) {
+        console.error('Error parsing input JSON:', err);
+    }
+});
 
 function calculateBalanceSheet(expenseData: Transaction[], revenueData: Transaction[]): BalanceSheetEntry[] {
     const balanceSheet: BalanceSheetEntry[] = [];
@@ -60,29 +85,4 @@ function calculateBalanceSheet(expenseData: Transaction[], revenueData: Transact
     return balanceSheet;
 }
 
-fs.readFile(fileName, 'utf8', (err, data) => {
-    if (err) {
-        console.error('Error reading input file:', err);
-        return;
-    }
 
-    try {
-        const inputData: InputData = JSON.parse(data);
-        const expenseData: Transaction[] = inputData.expenseData || [];
-        const revenueData: Transaction[] = inputData.revenueData || [];
-        const balanceSheet: BalanceSheetEntry[] = calculateBalanceSheet(expenseData, revenueData);
-        const outputData: OutputData = { balance: balanceSheet };
-
-        // Write the output JSON to a file
-        fs.writeFile('output.json', JSON.stringify(outputData, null, 2), (err) => {
-            if (err) {
-                console.error('Error writing output file:', err);
-            } else {
-                console.log('Balance sheet has been generated successfully!');
-                console.log(balanceSheet);
-            }
-        });
-    } catch (err) {
-        console.error('Error parsing input JSON:', err);
-    }
-});
